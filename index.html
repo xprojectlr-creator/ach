@@ -161,6 +161,7 @@
   .hasil .cicilan small { display: block; color: var(--muted); font-size: 13px; }
   .hasil .cicilan strong { display: block; font-size: 32px; font-weight: 700; letter-spacing: -0.5px; color: var(--blue); margin-top: 2px; }
   .hasil .cicilan em { font-style: normal; font-size: 15px; color: var(--muted); font-weight: 500; }
+  .hasil .info { display: inline-block; margin: 8px 0 0; font-size: 12px; font-weight: 600; color: var(--orange); background: rgba(255,149,0,0.12); padding: 4px 10px; border-radius: 999px; }
   .rincian { list-style: none; margin: 0 0 16px; padding: 0; border-top: 0.5px solid var(--line); }
   .rincian li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--line); font-size: 15px; }
   .rincian li span { color: var(--muted); flex-shrink: 0; }
@@ -262,13 +263,13 @@
       <div class="cicilan">
         <small>Cicilan per bulan</small>
         <strong><span id="hasilCicilan"></span> <em>/bulan</em></strong>
+        <p class="info">Belum termasuk diskon &amp; potongan tenor</p>
       </div>
       <ul class="rincian">
         <li><span>Model</span><strong id="rModel"></strong></li>
         <li><span>Harga OTR</span><strong id="rOtr"></strong></li>
         <li><span>Uang muka (DP)</span><strong id="rDp"></strong></li>
         <li><span>Tenor</span><strong id="rTenor"></strong></li>
-        <li><span>Total pembayaran</span><strong id="rTotal"></strong></li>
       </ul>
       <div class="aksi">
         <a id="waLink" class="btn btn-wa" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Ajukan via WhatsApp</a>
@@ -278,7 +279,7 @@
   </section>
 
   <p class="catatan">
-    Total pembayaran = DP + (cicilan × tenor), di luar biaya lain jika ada.<br>
+    Cicilan belum termasuk diskon &amp; potongan tenor.<br>
     Angka cicilan sesuai tabel FIFGROUP Bandung Raya, Oktober 2026.<br>
     Harga &amp; ketentuan dapat berubah sewaktu-waktu.
   </p>
@@ -460,14 +461,12 @@ function updateBar() {
   const m = data[state.model];
   const dp = state.dpList[state.dpIndex];
   const cicilan = m.tabel[dp][state.tenor];
-  const total = dp + cicilan * Number(state.tenor);
 
   $('hasilCicilan').textContent = formatRupiah(cicilan);
   $('rModel').textContent = state.model;
   $('rOtr').textContent = formatRupiah(m.harga);
   $('rDp').textContent = formatRupiah(dp);
   $('rTenor').textContent = state.tenor + ' bulan';
-  $('rTotal').textContent = formatRupiah(total);
 
   const pesan = "Halo Dion Prayoga, saya tertarik dengan simulasi cicilan di Daya Motor Cibiru:\n" +
     "Model: " + state.model + "\n" +
