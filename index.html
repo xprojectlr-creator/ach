@@ -222,6 +222,31 @@
   .footer { text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; margin: 28px 0 0; padding: 0 16px; }
   .footer a { color: var(--blue); text-decoration: none; font-weight: 500; }
 
+  /* Harga Motor */
+  .icon.teal { background: #30b0c7; }
+  .seg.dua { grid-template-columns: repeat(2, 1fr); }
+  .seg button[aria-pressed="true"] { background: #fff; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.1), 0 0 1px rgba(0,0,0,0.1); }
+  .hlist { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .hcard { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .hcard h3 { margin: 0; font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+  .hcard .badge { margin-top: -4px; }
+  .hharga small { display: block; color: var(--muted); font-size: 13px; }
+  .hharga strong { display: block; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .hharga del { display: block; color: var(--muted); font-size: 15px; }
+  .hharga .hemat { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 600; color: #248a3d; background: rgba(52,199,89,0.12); padding: 3px 9px; border-radius: 999px; }
+  .hharga .rincian { margin: 0; }
+  .hharga .rincian li { padding: 8px 0; }
+  .hharga .disclaimer { margin: 8px 0 0; text-align: left; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { flex: 1 0 52px; border: 2px solid transparent; background: var(--fill); color: var(--text); border-radius: 9px; padding: 7px 4px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .chips button[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+  .voucher { width: 100%; border: 1.5px dashed var(--orange); background: rgba(255,149,0,0.08); color: #c46a00; border-radius: 10px; padding: 10px 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .voucher[aria-pressed="true"] { border-style: solid; border-color: var(--green); background: rgba(52,199,89,0.12); color: #248a3d; }
+  .voucher:disabled { border-color: #d1d1d6; background: var(--fill); color: var(--muted); cursor: not-allowed; }
+  .hnote { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
+  .hcard .btn { padding: 12px 14px; font-size: 16px; }
+  .hlink { border: none; background: none; color: var(--blue); font-size: 14px; font-weight: 500; padding: 2px 0; cursor: pointer; align-self: center; }
+
   /* Aksesibilitas */
   .skip {
     position: absolute; left: 12px; top: -60px; z-index: 10; padding: 10px 14px; border-radius: 10px;
@@ -273,6 +298,11 @@
     <button type="button" id="menuBi" class="menu-item">
       <span class="icon indigo"><svg aria-hidden="true"><use href="#i-id"/></svg></span>
       <span class="txt"><strong>Cek BI Checking</strong><small>Kirim data KTP &amp; KK via WhatsApp</small></span>
+      <svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg>
+    </button>
+    <button type="button" id="menuHarga" class="menu-item">
+      <span class="icon teal"><svg aria-hidden="true"><use href="#i-tag"/></svg></span>
+      <span class="txt"><strong>Harga Motor</strong><small>Harga cash &amp; kredit, voucher BeAT</small></span>
       <svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg>
     </button>
     <a id="menuPromo" class="menu-item" target="_blank" rel="noopener">
@@ -444,6 +474,31 @@
     Hasil pengecekan diinformasikan langsung lewat WhatsApp.
   </p>
 </main>
+<!-- Harga Motor -->
+<main id="harga" class="wrap" hidden>
+  <div class="nav">
+    <button type="button" class="back" id="btnBackHarga" aria-label="Kembali ke menu utama"><svg aria-hidden="true"><use href="#i-back"/></svg>Kembali</button>
+    <a class="wa-pill" data-wa target="_blank" rel="noopener" aria-label="Chat WhatsApp Dion (buka di tab baru)"><svg aria-hidden="true"><use href="#i-wa"/></svg>WhatsApp</a>
+  </div>
+  <h1 class="page-title">Harga Motor</h1>
+  <p class="page-sub">Pilih Cash atau Kredit. Voucher khusus BeAT series.</p>
+
+  <div class="step">
+    <div class="seg dua" id="hargaMode" role="group" aria-label="Metode pembayaran">
+      <button type="button" data-mode="cash" aria-pressed="true">Cash</button>
+      <button type="button" data-mode="kredit" aria-pressed="false">Kredit</button>
+    </div>
+    <div class="seg" id="hargaTabs" role="group" aria-label="Kategori motor" style="margin-bottom:0"></div>
+  </div>
+  <p class="disclaimer" id="hargaDisclaimer" style="margin:10px 4px 0" hidden>Hasil simulasi bersifat estimasi dan bukan penawaran resmi. Angka final ditentukan oleh leasing.</p>
+
+  <div class="hlist" id="hargaList"></div>
+
+  <p class="catatan">
+    Harga OTR &amp; cicilan sesuai pricelist FIFGROUP Bandung Raya, Oktober 2026.<br>
+    Harga &amp; ketentuan dapat berubah sewaktu-waktu.
+  </p>
+</main>
 </div>
 
 <footer class="footer">
@@ -510,7 +565,7 @@ function initKontak() {
 }
 
 // Navigasi memakai history.pushState agar tombol/gestur "kembali" bawaan browser berfungsi
-const HALAMAN = ['home', 'kalkulator', 'bichecking'];
+const HALAMAN = ['home', 'kalkulator', 'bichecking', 'harga'];
 
 function halamanDariHash() {
   const h = location.hash.slice(1);
@@ -814,6 +869,220 @@ function updateBar() {
   $('waLink').href = waUrl(pesan);
 }
 
+// Harga Motor: voucher khusus BeAT series, data harga & cicilan dari data.js
+const BEAT_SERIES = ['New BeAT CBS', 'New BeAT CBS ISS DELUXE', 'New BeAT CBS ISS DELUXE SMARTKEY', 'New BeAT Street'];
+const DISKON_CASH = 500000;
+const DP_PROMO = 700000;
+const TENOR_PROMO = '35';
+const harga = { mode: 'cash', kategori: 'Matic', unit: {} };
+
+function isBeat(nama) { return BEAT_SERIES.indexOf(nama) >= 0; }
+
+// Sama dengan cara kalkulator: angka cicilan diambil dari tabel FIFGROUP (DP × tenor)
+function cicilanTabel(nama, dp, tenor) {
+  const row = data[nama] && data[nama].tabel[dp];
+  return row ? row[tenor] : undefined;
+}
+
+function unitHarga(nama) {
+  if (!harga.unit[nama]) {
+    const m = data[nama];
+    const dpList = Object.keys(m.tabel).map(Number).sort(function(a, b) { return a - b; });
+    const tenors = Object.keys(m.tabel[dpList[0]]).sort(function(a, b) { return a - b; });
+    harga.unit[nama] = {
+      dpNormal: dpList[0], tenors: tenors,
+      tenor: tenors.indexOf(TENOR_PROMO) >= 0 ? TENOR_PROMO : tenors[tenors.length - 1],
+      diskon: false, dpPromo: false
+    };
+  }
+  return harga.unit[nama];
+}
+
+function el(tag, cls, teks) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (teks) e.textContent = teks;
+  return e;
+}
+
+function renderHargaTabs() {
+  const tabs = $('hargaTabs');
+  tabs.innerHTML = '';
+  KATEGORI.forEach(function(kat) {
+    const b = el('button', '', kat);
+    b.type = 'button';
+    b.setAttribute('aria-pressed', kat === harga.kategori);
+    b.addEventListener('click', function() {
+      if (harga.kategori === kat) return;
+      harga.kategori = kat;
+      renderHargaTabs();
+      renderHargaList();
+    });
+    tabs.appendChild(b);
+  });
+}
+
+function setModeHarga(mode) {
+  harga.mode = mode;
+  document.querySelectorAll('#hargaMode button').forEach(function(b) {
+    b.setAttribute('aria-pressed', b.dataset.mode === mode);
+  });
+  $('hargaDisclaimer').hidden = mode !== 'kredit';
+  renderHargaList();
+}
+
+function renderHargaList() {
+  const list = $('hargaList');
+  list.innerHTML = '';
+  modelPerKategori(harga.kategori).forEach(function(nama) { list.appendChild(kartuHarga(nama)); });
+}
+
+function kartuHarga(nama) {
+  const u = unitHarga(nama);
+  const beat = isBeat(nama);
+  const kredit = harga.mode === 'kredit';
+  const card = el('article', 'hcard');
+  card.appendChild(el('h3', '', nama));
+  if (beat) card.appendChild(el('span', 'badge', kredit ? 'Voucher DP 700rb' : 'Voucher diskon 500rb'));
+
+  const area = el('div', 'hharga');
+  area.setAttribute('aria-live', 'polite');
+  card.appendChild(area);
+
+  let chips = null, voucher = null, ket = null;
+  if (kredit) {
+    chips = el('div', 'chips');
+    chips.setAttribute('role', 'group');
+    chips.setAttribute('aria-label', 'Pilih tenor ' + nama);
+    u.tenors.forEach(function(t) {
+      const b = el('button', '', t + ' bln');
+      b.type = 'button';
+      b.dataset.tenor = t;
+      b.setAttribute('aria-label', 'Tenor ' + t + ' bulan');
+      b.addEventListener('click', function() {
+        u.tenor = t;
+        if (t !== TENOR_PROMO) u.dpPromo = false;
+        update();
+      });
+      chips.appendChild(b);
+    });
+    card.appendChild(chips);
+  }
+  if (beat) {
+    voucher = el('button', 'voucher', kredit ? 'Pakai Voucher DP 700rb (Tenor 35 bulan)' : 'Pakai Voucher Diskon 500rb');
+    voucher.type = 'button';
+    voucher.addEventListener('click', function() {
+      if (kredit) u.dpPromo = !u.dpPromo; else u.diskon = !u.diskon;
+      update();
+    });
+    card.appendChild(voucher);
+    if (kredit) {
+      ket = el('p', 'hnote', 'Voucher hanya untuk tenor 35 bulan');
+      ket.id = 'ket-' + nama.replace(/\W+/g, '-');
+      voucher.setAttribute('aria-describedby', ket.id);
+      card.appendChild(ket);
+    }
+  }
+  const note = el('p', 'hnote');
+  card.appendChild(note);
+
+  const wa = el('a', 'btn btn-wa');
+  wa.target = '_blank';
+  wa.rel = 'noopener';
+  wa.innerHTML = '<svg aria-hidden="true"><use href="#i-wa"/></svg>';
+  wa.appendChild(document.createTextNode(kredit ? 'Ajukan via WhatsApp' : 'Tanya via WhatsApp'));
+  card.appendChild(wa);
+
+  if (kredit) {
+    const lain = el('button', 'hlink', 'Atur DP lain di Kalkulator');
+    lain.type = 'button';
+    lain.addEventListener('click', function() { bukaKalkulator(nama); });
+    card.appendChild(lain);
+  }
+
+  function update() {
+    const otr = data[nama].harga;
+    area.innerHTML = '';
+    let pesan;
+    if (!kredit) {
+      const aktif = beat && u.diskon;
+      if (voucher) voucher.setAttribute('aria-pressed', aktif);
+      area.appendChild(el('small', '', aktif ? 'Harga cash setelah voucher' : 'Harga OTR'));
+      if (aktif) {
+        const del = el('del', '', formatRupiah(otr));
+        del.setAttribute('aria-label', 'Harga normal ' + formatRupiah(otr));
+        area.appendChild(del);
+        area.appendChild(el('strong', '', formatRupiah(otr - DISKON_CASH)));
+        area.appendChild(el('span', 'hemat', 'Hemat Rp500.000'));
+      } else {
+        area.appendChild(el('strong', '', formatRupiah(otr)));
+      }
+      note.textContent = beat ? '' : 'Belum termasuk diskon — hubungi sales untuk promo terupdate.';
+      pesan = "Halo Dion Prayoga, saya mau tanya harga cash di Daya Motor Cibiru:\n" +
+        "Model: " + nama + "\n" +
+        (aktif
+          ? "Harga normal: " + formatRupiah(otr) + "\nVoucher diskon: " + formatRupiah(DISKON_CASH) + "\nHarga setelah diskon: " + formatRupiah(otr - DISKON_CASH) + "\n"
+          : "Harga OTR: " + formatRupiah(otr) + "\n") +
+        "Mohon info lebih lanjut.";
+    } else {
+      const bisaPromo = beat && u.tenor === TENOR_PROMO;
+      const aktif = bisaPromo && u.dpPromo;
+      const dp = aktif ? DP_PROMO : u.dpNormal;
+      // TODO: tabel FIFGROUP belum memuat baris DP Rp700.000; isi di data.js agar estimasi cicilan promo tampil
+      const cicilan = cicilanTabel(nama, dp, u.tenor);
+      chips.querySelectorAll('button').forEach(function(b) { b.setAttribute('aria-pressed', b.dataset.tenor === u.tenor); });
+      if (voucher) {
+        voucher.disabled = !bisaPromo;
+        voucher.setAttribute('aria-pressed', aktif);
+        ket.hidden = bisaPromo;
+      }
+      area.appendChild(el('small', '', 'Estimasi cicilan per bulan'));
+      area.appendChild(el('strong', '', cicilan ? formatRupiah(cicilan) : 'Dikonfirmasi sales'));
+      const ul = el('ul', 'rincian');
+      [['Harga OTR', formatRupiah(otr)], [aktif ? 'DP promo' : 'Uang muka (DP)', formatRupiah(dp)], ['Tenor', u.tenor + ' bulan']].forEach(function(r) {
+        const li = el('li');
+        li.appendChild(el('span', '', r[0]));
+        li.appendChild(el('strong', '', r[1]));
+        ul.appendChild(li);
+      });
+      area.appendChild(ul);
+      if (aktif) area.appendChild(el('p', 'disclaimer', 'DP promo Rp700.000 khusus tenor 35 bulan. Estimasi, bukan penawaran resmi.'));
+      note.textContent = aktif || bisaPromo ? '' : 'Belum termasuk promo DP — hubungi sales untuk promo terupdate.';
+      pesan = "Halo Dion Prayoga, saya tertarik kredit motor di Daya Motor Cibiru:\n" +
+        "Model: " + nama + "\n" +
+        "Harga OTR: " + formatRupiah(otr) + "\n" +
+        (aktif ? "DP promo (voucher): " : "DP: ") + formatRupiah(dp) + "\n" +
+        "Tenor: " + u.tenor + " bulan\n" +
+        "Estimasi cicilan: " + (cicilan ? formatRupiah(cicilan) + "/bulan" : "mohon diinfokan") + "\n" +
+        "Mohon info lebih lanjut.";
+    }
+    note.hidden = !note.textContent;
+    wa.href = waUrl(pesan);
+    wa.setAttribute('aria-label', (kredit ? 'Ajukan ' : 'Tanya ') + nama + ' via WhatsApp (buka di tab baru)');
+  }
+  update();
+  return card;
+}
+
+// Buka kalkulator dengan model terpilih (logika kalkulator tidak diubah)
+function bukaKalkulator(nama) {
+  state.kategori = kategori(nama);
+  renderTabs();
+  renderModel();
+  pilihModel(nama);
+  bukaHalaman('kalkulator');
+}
+
+function initHarga() {
+  document.querySelectorAll('#hargaMode button').forEach(function(b) {
+    b.addEventListener('click', function() { setModeHarga(b.dataset.mode); });
+  });
+  renderHargaTabs();
+  setModeHarga('cash');
+  $('menuHarga').addEventListener('click', function() { bukaHalaman('harga'); });
+  $('btnBackHarga').addEventListener('click', kembali);
+}
+
 function init() {
   initPromo();
   initKontak();
@@ -837,6 +1106,7 @@ function init() {
     judul.focus();
   });
   initBi();
+  initHarga();
   $('btnUlang').addEventListener('click', function() {
     clearTimeout(timerMemuat);
     timerMemuat = 0;
