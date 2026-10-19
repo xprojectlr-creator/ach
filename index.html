@@ -32,7 +32,7 @@
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
     background: var(--bg); color: var(--text);
     -webkit-font-smoothing: antialiased;
-    padding: env(safe-area-inset-top) 0 120px;
+    padding: env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom));
   }
   .wrap { padding: 0 16px; }
   [hidden] { display: none !important; }
@@ -155,20 +155,19 @@
 
   .catatan { font-size: 12px; color: var(--muted); text-align: center; margin: 20px 0 0; line-height: 1.6; }
 
-  /* Bar hasil */
-  .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; transform: translateY(110%); transition: transform 0.3s ease; }
-  .bar.show { transform: translateY(0); }
-  .bar-inner {
-    max-width: 520px; margin: 0 auto; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    background: rgba(255,255,255,0.85); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-top: 0.5px solid var(--line);
-    display: flex; align-items: center; gap: 12px;
-  }
-  .bar .sum { flex: 1; min-width: 0; }
-  .bar .sum small { display: block; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bar .sum strong { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; }
-  .bar .sum strong em { font-style: normal; font-size: 13px; color: var(--muted); font-weight: 500; }
-  .bar .btn { width: auto; flex-shrink: 0; padding: 12px 18px; font-size: 16px; }
+  /* Hasil simulasi (di dalam alur halaman, bukan melayang, agar tidak tertutup watermark/badge) */
+  .hasil { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-top: 8px; scroll-margin-top: 16px; }
+  .hasil .cicilan { text-align: center; padding: 6px 0 14px; }
+  .hasil .cicilan small { display: block; color: var(--muted); font-size: 13px; }
+  .hasil .cicilan strong { display: block; font-size: 32px; font-weight: 700; letter-spacing: -0.5px; color: var(--blue); margin-top: 2px; }
+  .hasil .cicilan em { font-style: normal; font-size: 15px; color: var(--muted); font-weight: 500; }
+  .hasil .info { display: inline-block; margin: 8px 0 0; font-size: 12px; font-weight: 600; color: var(--orange); background: rgba(255,149,0,0.12); padding: 4px 10px; border-radius: 999px; }
+  .rincian { list-style: none; margin: 0 0 16px; padding: 0; border-top: 0.5px solid var(--line); }
+  .rincian li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--line); font-size: 15px; }
+  .rincian li span { color: var(--muted); flex-shrink: 0; }
+  .rincian li strong { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+  .aksi { display: flex; flex-direction: column; gap: 10px; }
+  .btn-plain { background: var(--fill); color: var(--blue); }
 </style>
 </head>
 <body>
@@ -257,21 +256,34 @@
     <div class="tenor-grid" id="tenorGrid"><p class="placeholder">Pilih motor dulu.</p></div>
   </section>
 
+  <h2 class="section-label">4 · Hasil simulasi</h2>
+  <section class="hasil" id="hasil">
+    <p class="placeholder" id="hasilKosong">Pilih tenor untuk melihat hasil simulasi.</p>
+    <div id="hasilIsi" hidden>
+      <div class="cicilan">
+        <small>Cicilan per bulan</small>
+        <strong><span id="hasilCicilan"></span> <em>/bulan</em></strong>
+        <p class="info">Belum termasuk diskon &amp; potongan tenor</p>
+      </div>
+      <ul class="rincian">
+        <li><span>Model</span><strong id="rModel"></strong></li>
+        <li><span>Harga OTR</span><strong id="rOtr"></strong></li>
+        <li><span>Uang muka (DP)</span><strong id="rDp"></strong></li>
+        <li><span>Tenor</span><strong id="rTenor"></strong></li>
+      </ul>
+      <div class="aksi">
+        <a id="waLink" class="btn btn-wa" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Ajukan via WhatsApp</a>
+        <button type="button" class="btn btn-plain" id="btnUlang">Hitung Ulang</button>
+      </div>
+    </div>
+  </section>
+
   <p class="catatan">
+    Cicilan belum termasuk diskon &amp; potongan tenor.<br>
     Angka cicilan sesuai tabel FIFGROUP Bandung Raya, Oktober 2026.<br>
     Harga &amp; ketentuan dapat berubah sewaktu-waktu.
   </p>
 </main>
-
-<div class="bar" id="bar">
-  <div class="bar-inner">
-    <div class="sum">
-      <small id="barInfo"></small>
-      <strong id="barCicilan"></strong>
-    </div>
-    <a id="waLink" class="btn btn-wa" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Ajukan</a>
-  </div>
-</div>
 
 <script src="data.js"></script>
 <script>
@@ -332,7 +344,6 @@ function bukaHalaman(nama) {
   const kalk = nama === 'kalkulator';
   $('home').hidden = kalk;
   $('kalkulator').hidden = !kalk;
-  if (kalk) updateBar(); else $('bar').classList.remove('show');
   window.scrollTo(0, 0);
 }
 
@@ -434,6 +445,7 @@ function renderTenor() {
     b.addEventListener('click', function() {
       state.tenor = t;
       renderTenor();
+      $('hasil').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
     grid.appendChild(b);
   });
@@ -441,17 +453,20 @@ function renderTenor() {
 }
 
 function updateBar() {
-  const bar = $('bar');
-  if (!state.model || !state.tenor || $('kalkulator').hidden) {
-    bar.classList.remove('show');
-    return;
-  }
+  const ada = state.model && state.tenor;
+  $('hasilKosong').hidden = !!ada;
+  $('hasilIsi').hidden = !ada;
+  if (!ada) return;
+
   const m = data[state.model];
   const dp = state.dpList[state.dpIndex];
   const cicilan = m.tabel[dp][state.tenor];
 
-  $('barInfo').textContent = state.model + ' · DP ' + formatSingkat(dp) + ' · ' + state.tenor + ' bln';
-  $('barCicilan').innerHTML = formatRupiah(cicilan) + ' <em>/bulan</em>';
+  $('hasilCicilan').textContent = formatRupiah(cicilan);
+  $('rModel').textContent = state.model;
+  $('rOtr').textContent = formatRupiah(m.harga);
+  $('rDp').textContent = formatRupiah(dp);
+  $('rTenor').textContent = state.tenor + ' bulan';
 
   const pesan = "Halo Dion Prayoga, saya tertarik dengan simulasi cicilan di Daya Motor Cibiru:\n" +
     "Model: " + state.model + "\n" +
@@ -461,7 +476,6 @@ function updateBar() {
     "Cicilan per bulan: " + formatRupiah(cicilan) + "\n" +
     "Mohon info lebih lanjut.";
   $('waLink').href = waUrl(pesan);
-  bar.classList.add('show');
 }
 
 function init() {
@@ -475,6 +489,10 @@ function init() {
   $('dpPlus').addEventListener('click', function() { setDP(state.dpIndex + 1); });
   $('menuCek').addEventListener('click', function() { bukaHalaman('kalkulator'); });
   $('btnBack').addEventListener('click', function() { bukaHalaman('home'); });
+  $('btnUlang').addEventListener('click', function() {
+    pilihModel('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 }
 
 init();
